@@ -17,16 +17,22 @@ function Resolve-FullPath([string]$Path) {
 
 function Get-7ZipPath {
     $candidates = @(
-        (Get-Command 7z.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
         "C:\Program Files\7-Zip\7z.exe",
         "C:\Program Files (x86)\7-Zip\7z.exe"
-    ) | Where-Object { $_ -and (Test-Path $_) }
+    )
+    
+    $cmdPath = Get-Command 7z.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue
+    if ($cmdPath) {
+        $candidates = @($cmdPath) + $candidates
+    }
+    
+    $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 
-    if (-not $candidates) {
+    if (-not $found) {
         throw "7-Zip (7z.exe) not found. Install 7-Zip or ensure 7z.exe is on PATH."
     }
 
-    return $candidates[0]
+    return $found
 }
 
 try {
@@ -39,7 +45,17 @@ try {
     New-Item -ItemType Directory -Path $workRoot | Out-Null
 
     $sevenZip = Get-7ZipPath
-    & $sevenZip x -y -o"$workRoot" "$rarFullPath" | Out-Null
+    Write-Host "Using 7-Zip at: $sevenZip"
+    
+    if (-not (Test-Path $sevenZip)) {
+        throw "7-Zip executable not found at: $sevenZip"
+    }
+    
+    $extractArgs = @('x', '-y', "-o$workRoot", $rarFullPath)
+    $process = Start-Process -FilePath $sevenZip -ArgumentList $extractArgs -Wait -PassThru -NoNewWindow
+    if ($process.ExitCode -ne 0) {
+        throw "7-Zip extraction failed with exit code: $($process.ExitCode)"
+    }
 
     $iso = Get-ChildItem -Path $workRoot -Recurse -Filter *.iso | Select-Object -First 1
     if (-not $iso) {
