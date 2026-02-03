@@ -64,10 +64,6 @@ try {
         $RarPath = Select-RarFromDirectory (Get-Location).Path
     }
 
-    if (-not $ExeName) {
-        $ExeName = Read-Host "Enter executable name inside ISO (e.g., SETUP.exe)"
-    }
-
     $rarFullPath = Resolve-FullPath $RarPath
     if (-not (Test-Path $rarFullPath)) {
         throw "RAR file not found: $rarFullPath"
@@ -98,6 +94,32 @@ try {
     $volume = ($diskImage | Get-Volume | Select-Object -First 1)
     if (-not $volume -or -not $volume.DriveLetter) {
         throw "Failed to determine mounted drive letter."
+    }
+
+    if (-not $ExeName) {
+        $mountRoot = ($volume.DriveLetter + ":\")
+        $exeFiles = Get-ChildItem -Path $mountRoot -Filter *.exe -File | Sort-Object Name
+        if (-not $exeFiles -or $exeFiles.Count -eq 0) {
+            throw "No EXE files found in mounted ISO root: $mountRoot"
+        }
+
+        Write-Host "Select an executable to run:" -ForegroundColor Cyan
+        for ($i = 0; $i -lt $exeFiles.Count; $i++) {
+            $index = $i + 1
+            Write-Host ("[{0}] {1}" -f $index, $exeFiles[$i].Name)
+        }
+
+        while ($true) {
+            $selection = Read-Host "Enter number (1-$($exeFiles.Count))"
+            if ([int]::TryParse($selection, [ref]$null)) {
+                $selectedIndex = [int]$selection
+                if ($selectedIndex -ge 1 -and $selectedIndex -le $exeFiles.Count) {
+                    $ExeName = $exeFiles[$selectedIndex - 1].Name
+                    break
+                }
+            }
+            Write-Host "Invalid selection. Please try again." -ForegroundColor Yellow
+        }
     }
 
     $exePath = Join-Path -Path ($volume.DriveLetter + ":\") -ChildPath $ExeName
