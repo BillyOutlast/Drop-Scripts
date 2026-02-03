@@ -1,4 +1,3 @@
-@echo off
 setlocal EnableExtensions
 
 :: Print the current path
