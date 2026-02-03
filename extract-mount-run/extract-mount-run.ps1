@@ -1,8 +1,8 @@
 param(
-    [Parameter(Mandatory = $true, Position = 0)]
+    [Parameter(Mandatory = $false, Position = 0)]
     [string]$RarPath,
 
-    [Parameter(Mandatory = $true, Position = 1)]
+    [Parameter(Mandatory = $false, Position = 1)]
     [string]$ExeName
 )
 
@@ -35,7 +35,39 @@ function Get-7ZipPath {
     return $found
 }
 
+function Select-RarFromDirectory([string]$DirectoryPath) {
+    $rarFiles = Get-ChildItem -Path $DirectoryPath -Filter *.rar -File | Sort-Object Name
+    if (-not $rarFiles -or $rarFiles.Count -eq 0) {
+        throw "No RAR files found in: $DirectoryPath"
+    }
+
+    Write-Host "Select a RAR file:" -ForegroundColor Cyan
+    for ($i = 0; $i -lt $rarFiles.Count; $i++) {
+        $index = $i + 1
+        Write-Host ("[{0}] {1}" -f $index, $rarFiles[$i].Name)
+    }
+
+    while ($true) {
+        $selection = Read-Host "Enter number (1-$($rarFiles.Count))"
+        if ([int]::TryParse($selection, [ref]$null)) {
+            $selectedIndex = [int]$selection
+            if ($selectedIndex -ge 1 -and $selectedIndex -le $rarFiles.Count) {
+                return $rarFiles[$selectedIndex - 1].FullName
+            }
+        }
+        Write-Host "Invalid selection. Please try again." -ForegroundColor Yellow
+    }
+}
+
 try {
+    if (-not $RarPath) {
+        $RarPath = Select-RarFromDirectory (Get-Location).Path
+    }
+
+    if (-not $ExeName) {
+        $ExeName = Read-Host "Enter executable name inside ISO (e.g., SETUP.exe)"
+    }
+
     $rarFullPath = Resolve-FullPath $RarPath
     if (-not (Test-Path $rarFullPath)) {
         throw "RAR file not found: $rarFullPath"
