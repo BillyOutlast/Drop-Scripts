@@ -1,13 +1,7 @@
 param(
 
     [Parameter(Mandatory = $false, Position = 0)]
-    [string]$Dir,
-
-    [Parameter(Mandatory = $false, Position = 1)]
-    [string]$RarPath,
-
-    [Parameter(Mandatory = $false, Position = 2)]
-    [string]$ExeName
+    [string]$Dir
 
     )
 
@@ -157,3 +151,5 @@ finally {
         Remove-Item -Path $workRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
+
+Start-Sleep -Seconds 10
