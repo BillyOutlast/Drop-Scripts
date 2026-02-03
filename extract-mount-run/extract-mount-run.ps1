@@ -1,12 +1,31 @@
 param(
+
     [Parameter(Mandatory = $false, Position = 0)]
-    [string]$RarPath,
+    [string]$Dir,
 
     [Parameter(Mandatory = $false, Position = 1)]
+    [string]$RarPath,
+
+    [Parameter(Mandatory = $false, Position = 2)]
     [string]$ExeName
-)
+
+    )
 
 $ErrorActionPreference = 'Stop'
+
+$targetDir = $null
+if ($Dir) {
+    $targetDir = $Dir
+} elseif ($env:dir) {
+    $targetDir = $env:dir
+}
+
+if ($targetDir) {
+    if (-not (Test-Path -Path $targetDir)) {
+        throw "Directory not found: $targetDir"
+    }
+    Set-Location -Path (Resolve-Path -Path $targetDir).Path
+}
 
 function Resolve-FullPath([string]$Path) {
     if ([System.IO.Path]::IsPathRooted($Path)) {
