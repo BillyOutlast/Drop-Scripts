@@ -37,7 +37,9 @@ if "%~1"=="" (
         exit /b 1
     )
     
-    set "RAR_FILE=!RAR_!RAR_SELECTION!!!"
+    for /f "delims=" %%A in ("!RAR_SELECTION!") do (
+        set "RAR_FILE=!RAR_%%A!"
+    )
 ) else (
     set "RAR_FILE=%~f1"
 )
@@ -149,7 +151,9 @@ if defined USER_SELECT_EXE (
         goto :cleanup
     )
     
-    set "EXE_PATH=!EXE_!EXE_SELECTION!!!"
+    for /f "delims=" %%A in ("!EXE_SELECTION!") do (
+        set "EXE_PATH=!EXE_%%A!"
+    )
 ) else (
     :: Find and execute EXE
     echo Looking for executable: !EXE_NAME!
