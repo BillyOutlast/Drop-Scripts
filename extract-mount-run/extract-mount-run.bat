@@ -1,4 +1,4 @@
-@echo on
+@echo off
 setlocal enabledelayedexpansion
 
 if "%~1"=="" (
@@ -84,12 +84,17 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Find ISO file using PowerShell
+:: Find ISO file
 echo Looking for ISO file...
-for /f "delims=" %%A in ('powershell.exe -NoProfile -Command "Get-ChildItem -Path '!WORK_ROOT!' -Filter *.iso -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName"') do (
+set "ISO_FILE="
+pushd "!WORK_ROOT!"
+for /r . %%A in (*.iso) do (
     set "ISO_FILE=%%A"
+    goto :iso_found
 )
+popd
 
+:iso_found
 if not defined ISO_FILE (
     echo Error: No ISO file found in extracted contents
     echo Contents of working directory:
@@ -119,10 +124,12 @@ if defined USER_SELECT_EXE (
     echo.
     echo Searching for executables...
     set "EXE_COUNT=0"
-    for /r "!MOUNT_DRIVE!\" %%E in (*.exe) do (
+    pushd "!MOUNT_DRIVE!\"
+    for /r . %%E in (*.exe) do (
         set /a "EXE_COUNT+=1"
         set "EXE_!EXE_COUNT!=%%E"
     )
+    popd
     
     if !EXE_COUNT! equ 0 (
         echo Error: No EXE files found on mounted ISO.
@@ -160,10 +167,12 @@ if defined USER_SELECT_EXE (
     :: Find and execute EXE
     echo Looking for executable: !EXE_NAME!
     set "EXE_PATH="
-    for /r "!MOUNT_DRIVE!\" %%E in (!EXE_NAME!) do (
+    pushd "!MOUNT_DRIVE!\"
+    for /r . %%E in (!EXE_NAME!) do (
         set "EXE_PATH=%%E"
         goto :found_exe
     )
+    popd
     
     :found_exe
     if not defined EXE_PATH (
@@ -178,6 +187,7 @@ echo Executing...
 set "EXE_EXITCODE=!ERRORLEVEL!"
 
 :cleanup
+exit
 echo Unmounting ISO...
 powershell.exe -NoProfile -Command "Dismount-DiskImage -ImagePath '!ISO_FILE!'" >nul 2>&1
 
