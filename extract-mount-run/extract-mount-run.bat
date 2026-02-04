@@ -84,12 +84,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-:: Find ISO file
+:: Find ISO file using PowerShell
 echo Looking for ISO file...
-set "ISO_FILE="
-for /r "!WORK_ROOT!" %%I in (*.iso) do (
-    echo Found ISO: %%I
-    set "ISO_FILE=%%I"
+for /f "delims=" %%A in ('powershell.exe -NoProfile -Command "Get-ChildItem -Path '!WORK_ROOT!' -Filter *.iso -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName"') do (
+    set "ISO_FILE=%%A"
 )
 
 if not defined ISO_FILE (
@@ -100,7 +98,7 @@ if not defined ISO_FILE (
     exit /b 1
 )
 
-:found_iso
+echo Found ISO: !ISO_FILE!
 
 echo Found ISO: !ISO_FILE!
 
