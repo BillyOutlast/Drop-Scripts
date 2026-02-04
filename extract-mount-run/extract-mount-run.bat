@@ -1,49 +1,74 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Save the original directory
+set "ORIGINAL_DIR=%CD%"
+
 if "%~1"=="" (
-    echo Searching for RAR files in current directory...
-    set "RAR_COUNT=0"
-    for %%F in (*.rar) do (
-        set /a "RAR_COUNT+=1"
-        set "RAR_!RAR_COUNT!=%%F"
-    )
-    
-    if !RAR_COUNT! equ 0 (
-        echo Error: No RAR files found in current directory.
-        exit /b 1
-    )
-    
-    echo.
-    echo Select a RAR file:
-    for /l %%I in (1,1,!RAR_COUNT!) do (
-        echo [%%I] !RAR_%%I!
-    )
-    echo.
-    
-    set /p RAR_SELECTION="Enter number (1-!RAR_COUNT!) [10 second timeout, defaults to 1]: "
-    
-    if not defined RAR_SELECTION (
-        echo No selection made, using first option.
-        set "RAR_SELECTION=1"
-    )
-    
-    if !RAR_SELECTION! lss 1 (
-        echo Invalid selection, using first option.
-        set "RAR_SELECTION=1"
-    )
-    
-    if !RAR_SELECTION! gtr !RAR_COUNT! (
-        echo Invalid selection, using first option.
-        set "RAR_SELECTION=1"
-    )
-    
-    for /f "delims=" %%A in ("!RAR_SELECTION!") do (
-        set "RAR_FILE=!RAR_%%A!"
-    )
+    goto :rar_selection_loop
 ) else (
     set "RAR_FILE=%~f1"
+    goto :after_rar_selection
 )
+
+:rar_selection_loop
+cd /d "!ORIGINAL_DIR!"
+set "RAR_FILE="
+set "RAR_SELECTION="
+set "SELECTED_RAR="
+
+:: Clear previous RAR variables
+for /f "tokens=1* delims==" %%A in ('set RAR_ 2^>nul') do set "%%A="
+
+echo Searching for RAR files in current directory...
+set "RAR_COUNT=0"
+for %%F in (*.rar) do (
+    set /a "RAR_COUNT+=1"
+    set "RAR_!RAR_COUNT!=%%~fF"
+)
+
+if !RAR_COUNT! equ 0 (
+    echo Error: No RAR files found in current directory.
+    exit /b 1
+)
+
+echo.
+echo Select a RAR file:
+echo [0] Exit
+for /l %%I in (1,1,!RAR_COUNT!) do (
+    echo [%%I] !RAR_%%I!
+)
+echo.
+
+set /p RAR_SELECTION="Enter number (0 to exit, 1-!RAR_COUNT!): "
+
+if not defined RAR_SELECTION (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+if !RAR_SELECTION! equ 0 (
+    echo Exiting...
+    exit /b 0
+)
+
+if !RAR_SELECTION! lss 1 (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+if !RAR_SELECTION! gtr !RAR_COUNT! (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+for %%X in (!RAR_SELECTION!) do set "RAR_FILE=!RAR_%%X!"
+if not defined RAR_FILE (
+    echo Error: Failed to retrieve RAR file selection.
+    goto :rar_selection_loop
+)
+
+:after_rar_selection
 
 if "%~2"=="" (
     set "USER_SELECT_EXE=1"
@@ -54,7 +79,11 @@ if "%~2"=="" (
 :: Check if RAR file exists
 if not exist "!RAR_FILE!" (
     echo Error: RAR file not found: !RAR_FILE!
-    exit /b 1
+    if "%~1"=="" (
+        goto :rar_selection_loop
+    ) else (
+        exit /b 1
+    )
 )
 
 :: Create temp directory for extraction
@@ -96,11 +125,10 @@ popd
 
 :iso_found
 if not defined ISO_FILE (
-    echo Error: No ISO file found in extracted contents
-    echo Contents of working directory:
-    dir /s "!WORK_ROOT!"
-    rmdir /s /q "!WORK_ROOT!"
-    exit /b 1
+    echo No ISO file found in extracted contents
+    echo Searching for executables in working directory...
+    set "SEARCH_DIR=!WORK_ROOT!"
+    goto :find_exe_in_dir
 )
 
 echo Found ISO: !ISO_FILE!
@@ -118,13 +146,15 @@ if not defined MOUNT_DRIVE (
 )
 
 echo ISO mounted to: !MOUNT_DRIVE!
+set "SEARCH_DIR=!MOUNT_DRIVE!\"
 
+:find_exe_in_dir
 :: If user needs to select EXE, show menu
 if defined USER_SELECT_EXE (
     echo.
     echo Searching for executables...
     set "EXE_COUNT=0"
-    pushd "!MOUNT_DRIVE!\"
+    pushd "!SEARCH_DIR!"
     for /r . %%E in (*.exe) do (
         set /a "EXE_COUNT+=1"
         set "EXE_!EXE_COUNT!=%%E"
@@ -132,7 +162,7 @@ if defined USER_SELECT_EXE (
     popd
     
     if !EXE_COUNT! equ 0 (
-        echo Error: No EXE files found on mounted ISO.
+        echo Error: No EXE files found in !SEARCH_DIR!.
         goto :cleanup
     )
     
@@ -167,7 +197,7 @@ if defined USER_SELECT_EXE (
     :: Find and execute EXE
     echo Looking for executable: !EXE_NAME!
     set "EXE_PATH="
-    pushd "!MOUNT_DRIVE!\"
+    pushd "!SEARCH_DIR!"
     for /r . %%E in (!EXE_NAME!) do (
         set "EXE_PATH=%%E"
         goto :found_exe
@@ -187,16 +217,34 @@ echo Executing...
 set "EXE_EXITCODE=!ERRORLEVEL!"
 
 :cleanup
-echo Unmounting ISO...
-powershell.exe -NoProfile -Command "Dismount-DiskImage -ImagePath '!ISO_FILE!'" >nul 2>&1
+if defined ISO_FILE (
+    echo Unmounting ISO...
+    powershell.exe -NoProfile -Command "Dismount-DiskImage -ImagePath '!ISO_FILE!'" >nul 2>&1
+)
 
 echo Cleaning up temporary files...
 rmdir /s /q "!WORK_ROOT!" >nul 2>&1
 
 if defined EXE_EXITCODE (
-    exit /b !EXE_EXITCODE!
+    if "%~1"=="" (
+        echo.
+        echo Process completed. Returning to menu...
+        echo.
+        cd /d "!ORIGINAL_DIR!"
+        goto :rar_selection_loop
+    ) else (
+        exit /b !EXE_EXITCODE!
+    )
 ) else (
-    exit /b 1
+    if "%~1"=="" (
+        echo.
+        echo Process completed with errors. Returning to menu...
+        echo.
+        cd /d "!ORIGINAL_DIR!"
+        goto :rar_selection_loop
+    ) else (
+        exit /b 1
+    )
 )
 
 endlocal
