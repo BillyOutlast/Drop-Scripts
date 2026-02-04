@@ -1,3 +1,4 @@
+@echo on
 setlocal enabledelayedexpansion
 
 if "%~1"=="" (
