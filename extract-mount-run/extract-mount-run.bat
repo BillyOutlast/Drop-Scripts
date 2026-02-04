@@ -21,21 +21,21 @@ if "%~1"=="" (
     )
     echo.
     
-    set /p RAR_SELECTION="Enter number (1-!RAR_COUNT!): "
+    set /p RAR_SELECTION="Enter number (1-!RAR_COUNT!) [10 second timeout, defaults to 1]: "
     
     if not defined RAR_SELECTION (
-        echo Error: No selection made.
-        exit /b 1
+        echo No selection made, using first option.
+        set "RAR_SELECTION=1"
     )
     
     if !RAR_SELECTION! lss 1 (
-        echo Error: Invalid selection.
-        exit /b 1
+        echo Invalid selection, using first option.
+        set "RAR_SELECTION=1"
     )
     
     if !RAR_SELECTION! gtr !RAR_COUNT! (
-        echo Error: Invalid selection.
-        exit /b 1
+        echo Invalid selection, using first option.
+        set "RAR_SELECTION=1"
     )
     
     for /f "delims=" %%A in ("!RAR_SELECTION!") do (
