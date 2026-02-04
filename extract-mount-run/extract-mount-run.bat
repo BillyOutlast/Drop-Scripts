@@ -84,7 +84,7 @@ if !EXE_COUNT! equ 0 (
 if !EXE_COUNT! equ 0 (
     echo (none^)
     pause
-    exit /b 1
+    goto :start_menu
 )
 echo [0] Exit
 for /l %%I in (1,1,!EXE_COUNT!) do (
@@ -98,7 +98,7 @@ if not defined EXE_SELECTION (
 )
 if !EXE_SELECTION! equ 0 (
     echo Exiting...
-    exit /b 0
+    goto :start_menu
 )
 if !EXE_SELECTION! lss 1 (
     echo Invalid selection.
@@ -142,8 +142,7 @@ if not defined RAR_SELECTION (
 if !RAR_SELECTION! equ 0 (
     echo Exiting...
     echo [%time%] User exited >> "!DEBUG_LOG!"
-    pause
-    exit /b 0
+    goto :start_menu
 )
 
 if !RAR_SELECTION! lss 1 (
@@ -346,7 +345,6 @@ if defined USER_SELECT_EXE (
     echo Process completed with exit code !EXE_EXITCODE!.
     goto :exe_select_loop_in_dir
 )
-
 
 
 
