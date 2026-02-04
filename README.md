@@ -28,9 +28,6 @@ Extracts RAR files, mounts ISO images, and runs executables from the mounted ISO
 
    | Setting | Value |
    |---------|-------|
-   | **Name** | extract-mount-run |
-   | **Executor** | DropScripts (or your executor name) |
-   | **Path** | extract-mount-run |
    | **Setup Configuration** | Windows: `install-user.bat` |
    | **Launch Configuration** | Setup-only mode (no launch config) |
 
@@ -45,9 +42,6 @@ For games distributed as multi-part RAR archives with ISO files, create an addit
 
    | Setting | Value |
    |---------|-------|
-   | **Name** | extract-mount-run-multipart |
-   | **Executor** | DropScripts (or your executor name) |
-   | **Path** | extract-mount-run |
    | **Setup Configuration** | Windows: `exr-setup.bat` |
    | **Launch Configuration** | Setup-only mode (no launch config) |
 
