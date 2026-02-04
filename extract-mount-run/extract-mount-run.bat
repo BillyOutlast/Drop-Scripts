@@ -247,4 +247,6 @@ if defined EXE_EXITCODE (
     )
 )
 
+timeout /t 10 /nobreak
+
 endlocal
