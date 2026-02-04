@@ -185,6 +185,9 @@ if defined USER_SELECT_EXE (
     
     if !EXE_COUNT! equ 0 (
         echo Error: No EXE files found in !SEARCH_DIR!.
+        if "%~1"=="" (
+            pause
+        )
         goto :cleanup
     )
     
@@ -199,16 +202,25 @@ if defined USER_SELECT_EXE (
     
     if not defined EXE_SELECTION (
         echo Error: No selection made.
+        if "%~1"=="" (
+            pause
+        )
         goto :cleanup
     )
     
     if !EXE_SELECTION! lss 1 (
         echo Error: Invalid selection.
+        if "%~1"=="" (
+            pause
+        )
         goto :cleanup
     )
     
     if !EXE_SELECTION! gtr !EXE_COUNT! (
         echo Error: Invalid selection.
+        if "%~1"=="" (
+            pause
+        )
         goto :cleanup
     )
     
@@ -229,6 +241,9 @@ if defined USER_SELECT_EXE (
     :found_exe
     if not defined EXE_PATH (
         echo Error: Executable not found: !EXE_NAME!
+        if "%~1"=="" (
+            pause
+        )
         goto :cleanup
     )
 )
