@@ -36,49 +36,66 @@ for %%F in (*.rar) do (
 
 if !RAR_COUNT! equ 0 (
     echo No RAR files found in current directory.
-    echo.
-    echo Executables found:
-    set "EXE_COUNT=0"
-    pushd "!ORIGINAL_DIR!"
-    for /f "delims=" %%E in ('dir /b /a:-d "*.exe" 2^>nul') do (
-        set /a "EXE_COUNT+=1"
-        set "EXE_!EXE_COUNT!=!ORIGINAL_DIR!\%%E"
-    )
-    popd
-    if !EXE_COUNT! equ 0 (
-        echo (none)
-        pause
-        exit /b 1
-    )
-    for /l %%I in (1,1,!EXE_COUNT!) do (
-        echo [%%I] !EXE_%%I!
-    )
-    echo.
-    set /p EXE_SELECTION="Enter number (1-!EXE_COUNT!): "
-    if not defined EXE_SELECTION (
-        echo Error: No selection made.
-        pause
-        exit /b 1
-    )
-    if !EXE_SELECTION! lss 1 (
-        echo Error: Invalid selection.
-        pause
-        exit /b 1
-    )
-    if !EXE_SELECTION! gtr !EXE_COUNT! (
-        echo Error: Invalid selection.
-        pause
-        exit /b 1
-    )
-    for /f "delims=" %%A in ("!EXE_SELECTION!") do (
-        set "EXE_PATH=!EXE_%%A!"
-    )
-    echo.
-    echo Found executable: !EXE_PATH!
-    echo Executing...
-    "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
-    exit /b !ERRORLEVEL!
+    set "EXE_SEARCH_DIR=!ORIGINAL_DIR!"
+    goto :exe_selection_loop
 )
+
+goto :rar_menu
+
+:exe_selection_loop
+echo.
+echo Executables found in !EXE_SEARCH_DIR!:
+set "EXE_COUNT=0"
+for /f "delims=" %%E in ('where /r "!EXE_SEARCH_DIR!" *.exe 2^>nul') do (
+    set /a "EXE_COUNT+=1"
+    set "EXE_!EXE_COUNT!=%%~fE"
+)
+if !EXE_COUNT! equ 0 (
+    for /f "delims=" %%E in ('dir /b /a:-d "!EXE_SEARCH_DIR!\*.exe" 2^>nul') do (
+        set /a "EXE_COUNT+=1"
+        set "EXE_!EXE_COUNT!=!EXE_SEARCH_DIR!\%%E"
+    )
+)
+if !EXE_COUNT! equ 0 (
+    echo (none^)
+    pause
+    exit /b 1
+)
+echo [0] Exit
+for /l %%I in (1,1,!EXE_COUNT!) do (
+    echo [%%I] !EXE_%%I!
+)
+echo.
+set /p EXE_SELECTION="Enter number (0 to exit, 1-!EXE_COUNT!): "
+if not defined EXE_SELECTION (
+    echo Invalid selection.
+    goto :exe_selection_loop
+)
+if !EXE_SELECTION! equ 0 (
+    echo Exiting...
+    exit /b 0
+)
+if !EXE_SELECTION! lss 1 (
+    echo Invalid selection.
+    goto :exe_selection_loop
+)
+if !EXE_SELECTION! gtr !EXE_COUNT! (
+    echo Invalid selection.
+    goto :exe_selection_loop
+)
+for /f "delims=" %%A in ("!EXE_SELECTION!") do (
+    set "EXE_PATH=!EXE_%%A!"
+)
+echo.
+echo Found executable: !EXE_PATH!
+echo Executing...
+"!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
+set "EXE_EXITCODE=!ERRORLEVEL!"
+echo.
+echo Process completed with exit code !EXE_EXITCODE!.
+goto :exe_selection_loop
+
+:rar_menu
 
 echo.
 echo Select a RAR file:
@@ -292,6 +309,9 @@ echo Found executable: !EXE_PATH!
 echo Executing...
 "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
 set "EXE_EXITCODE=!ERRORLEVEL!"
+
+
+
 
 :cleanup
 if defined ISO_FILE (
