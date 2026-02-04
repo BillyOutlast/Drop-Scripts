@@ -10,11 +10,36 @@ echo [%date% %time%] Script started >> "!DEBUG_LOG!"
 set "ORIGINAL_DIR=%CD%"
 
 if "%~1"=="" (
-    goto :rar_selection_loop
+    goto :start_menu
 ) else (
     set "RAR_FILE=%~f1"
     goto :after_rar_selection
 )
+
+:start_menu
+echo.
+echo Select mode:
+echo [1] Search for RAR files
+echo [2] Search for EXE files
+echo [0] Exit
+echo.
+set /p START_SELECTION="Enter number (0-2): "
+if not defined START_SELECTION (
+    echo Invalid selection.
+    goto :start_menu
+)
+if !START_SELECTION! equ 0 (
+    exit /b 0
+)
+if !START_SELECTION! equ 1 (
+    goto :rar_selection_loop
+)
+if !START_SELECTION! equ 2 (
+    set "EXE_SEARCH_DIR=!ORIGINAL_DIR!"
+    goto :exe_selection_loop
+)
+echo Invalid selection.
+goto :start_menu
 
 :rar_selection_loop
 cd /d "!ORIGINAL_DIR!"
