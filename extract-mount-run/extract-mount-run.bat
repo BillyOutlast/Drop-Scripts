@@ -4,8 +4,8 @@ setlocal enabledelayedexpansion
 :: Check if already running in spawned window
 if "%SPAWNED%"=="1" goto :skip_spawn
 
-:: Spawn new cmd window and run this script
-start "" cmd /k "set SPAWNED=1 && call "%~f0" %*"
+:: Spawn new cmd window and run this script (using command from PATH)
+start "" cmd /k "set SPAWNED=1 && extract-mount-run.bat %*"
 exit /b
 
 :skip_spawn
