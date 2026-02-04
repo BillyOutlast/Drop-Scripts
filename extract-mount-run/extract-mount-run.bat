@@ -5,54 +5,70 @@ setlocal enabledelayedexpansion
 set "ORIGINAL_DIR=%CD%"
 
 if "%~1"=="" (
-    :rar_selection_loop
-    cd /d "!ORIGINAL_DIR!"
-    echo Searching for RAR files in current directory...
-    set "RAR_COUNT=0"
-    for %%F in (*.rar) do (
-        set /a "RAR_COUNT+=1"
-        set "RAR_!RAR_COUNT!=%%F"
-    )
-    
-    if !RAR_COUNT! equ 0 (
-        echo Error: No RAR files found in current directory.
-        exit /b 1
-    )
-    
-    echo.
-    echo Select a RAR file:
-    echo [0] Exit
-    for /l %%I in (1,1,!RAR_COUNT!) do (
-        echo [%%I] !RAR_%%I!
-    )
-    echo.
-    
-    set /p RAR_SELECTION="Enter number (0 to exit, 1-!RAR_COUNT!): "
-    
-    if not defined RAR_SELECTION (
-        echo Invalid selection.
-        goto :rar_selection_loop
-    )
-    
-    if !RAR_SELECTION! equ 0 (
-        echo Exiting...
-        exit /b 0
-    )
-    
-    if !RAR_SELECTION! lss 1 (
-        echo Invalid selection.
-        goto :rar_selection_loop
-    )
-    
-    if !RAR_SELECTION! gtr !RAR_COUNT! (
-        echo Invalid selection.
-        goto :rar_selection_loop
-    )
-    
-    call set "RAR_FILE=%%RAR_!RAR_SELECTION!%%"
+    goto :rar_selection_loop
 ) else (
     set "RAR_FILE=%~f1"
+    goto :after_rar_selection
 )
+
+:rar_selection_loop
+cd /d "!ORIGINAL_DIR!"
+set "RAR_FILE="
+set "RAR_SELECTION="
+set "SELECTED_RAR="
+
+:: Clear previous RAR variables
+for /f "tokens=1* delims==" %%A in ('set RAR_ 2^>nul') do set "%%A="
+
+echo Searching for RAR files in current directory...
+set "RAR_COUNT=0"
+for %%F in (*.rar) do (
+    set /a "RAR_COUNT+=1"
+    set "RAR_!RAR_COUNT!=%%~fF"
+)
+
+if !RAR_COUNT! equ 0 (
+    echo Error: No RAR files found in current directory.
+    exit /b 1
+)
+
+echo.
+echo Select a RAR file:
+echo [0] Exit
+for /l %%I in (1,1,!RAR_COUNT!) do (
+    echo [%%I] !RAR_%%I!
+)
+echo.
+
+set /p RAR_SELECTION="Enter number (0 to exit, 1-!RAR_COUNT!): "
+
+if not defined RAR_SELECTION (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+if !RAR_SELECTION! equ 0 (
+    echo Exiting...
+    exit /b 0
+)
+
+if !RAR_SELECTION! lss 1 (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+if !RAR_SELECTION! gtr !RAR_COUNT! (
+    echo Invalid selection.
+    goto :rar_selection_loop
+)
+
+for %%X in (!RAR_SELECTION!) do set "RAR_FILE=!RAR_%%X!"
+if not defined RAR_FILE (
+    echo Error: Failed to retrieve RAR file selection.
+    goto :rar_selection_loop
+)
+
+:after_rar_selection
 
 if "%~2"=="" (
     set "USER_SELECT_EXE=1"
@@ -63,7 +79,11 @@ if "%~2"=="" (
 :: Check if RAR file exists
 if not exist "!RAR_FILE!" (
     echo Error: RAR file not found: !RAR_FILE!
-    exit /b 1
+    if "%~1"=="" (
+        goto :rar_selection_loop
+    ) else (
+        exit /b 1
+    )
 )
 
 :: Create temp directory for extraction
