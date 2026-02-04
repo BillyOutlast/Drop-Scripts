@@ -49,9 +49,7 @@ if "%~1"=="" (
         goto :rar_selection_loop
     )
     
-    for /f "delims=" %%A in ("!RAR_SELECTION!") do (
-        set "RAR_FILE=!RAR_%%A!"
-    )
+    call set "RAR_FILE=%%RAR_!RAR_SELECTION!%%"
 ) else (
     set "RAR_FILE=%~f1"
 )
