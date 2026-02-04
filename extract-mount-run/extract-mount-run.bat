@@ -1,15 +1,5 @@
-@echo off
-setlocal enabledelayedexpansion
-
-:: Check if already running in spawned window
-if "%SPAWNED%"=="1" goto :skip_spawn
-
-:: Spawn new cmd window and run this script (using command from PATH)
-start "" cmd /k "set SPAWNED=1 && extract-mount-run.bat %*"
-exit /b
-
-:skip_spawn
 @echo on
+setlocal enabledelayedexpansion
 
 if "%~1"=="" (
     echo Searching for RAR files in current directory...
