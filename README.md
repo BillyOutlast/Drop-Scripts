@@ -12,6 +12,14 @@ Extracts RAR files, mounts ISO images, and runs executables from the mounted ISO
 - `exr-setup.bat` - Game setup launcher for multi-part archives
 - `install-user.bat` - User installation/setup script
 
+## Latest Updates
+
+I updated this to add support for multi-part GOG installers, inno-setup directory matching the Drop install folder, and adding an executable as a startup item.
+
+Simply add:
+- Setup item: exr-setup.bat
+- Run item: drop-start.bat
+
 ## Adding Drop-Scripts to Your Drop Instance
 
 ### Step 1: Import the Executor
