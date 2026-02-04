@@ -140,6 +140,7 @@ set "ISO_FILE="
 pushd "!WORK_ROOT!"
 for /r . %%A in (*.iso) do (
     set "ISO_FILE=%%A"
+    popd
     goto :iso_found
 )
 popd
