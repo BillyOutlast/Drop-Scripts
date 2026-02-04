@@ -99,6 +99,7 @@ if not exist "!RAR_FILE!" (
     if "%~1"=="" (
         goto :rar_selection_loop
     ) else (
+        pause
         exit /b 1
     )
 )
