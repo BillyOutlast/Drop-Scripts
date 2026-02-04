@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 if "%SPAWNED%"=="1" goto :skip_spawn
 
 :: Spawn new cmd window and run this script
-start cmd /k "set SPAWNED=1 && cd /d "%CD%" && call "%~f0" %*"
+start "" cmd /k "set SPAWNED=1 && call "%~f0" %*"
 exit /b
 
 :skip_spawn
