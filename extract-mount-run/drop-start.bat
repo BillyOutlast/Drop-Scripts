@@ -13,7 +13,9 @@ if exist "!DROP_START_FILE!" (
 	if defined DROP_START_CMD (
 		call "!DROP_START_CMD!"
 	)
+	goto :end
 ) else (
-	start "Run Select" cmd.exe /k "cd /d \"!ORIGINAL_DIR!\" ^& run-select.bat"
+	start "Run Select" cmd.exe /c "cd /d \"!ORIGINAL_DIR!\" ^& run-select.bat"
 )
+:end
 endlocal

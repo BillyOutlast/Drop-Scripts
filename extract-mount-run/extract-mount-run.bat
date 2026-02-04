@@ -230,6 +230,7 @@ if not defined ISO_FILE (
 :find_exe_in_dir
 :: If user needs to select EXE, show menu
 if defined USER_SELECT_EXE (
+    :exe_select_loop_in_dir
     echo.
     echo Searching for executables...
     set "EXE_COUNT=0"
@@ -250,18 +251,23 @@ if defined USER_SELECT_EXE (
     
     echo.
     echo Select an executable:
+    echo [0] Finish
     for /l %%I in (1,1,!EXE_COUNT!) do (
         echo [%%I] !EXE_%%I!
     )
     echo.
     
-    set /p EXE_SELECTION="Enter number (1-!EXE_COUNT!): "
+    set /p EXE_SELECTION="Enter number (0 to finish, 1-!EXE_COUNT!): "
     
     if not defined EXE_SELECTION (
         echo Error: No selection made.
         if "%~1"=="" (
             pause
         )
+        goto :exe_select_loop_in_dir
+    )
+    
+    if !EXE_SELECTION! equ 0 (
         goto :cleanup
     )
     
@@ -270,7 +276,7 @@ if defined USER_SELECT_EXE (
         if "%~1"=="" (
             pause
         )
-        goto :cleanup
+        goto :exe_select_loop_in_dir
     )
     
     if !EXE_SELECTION! gtr !EXE_COUNT! (
@@ -278,7 +284,7 @@ if defined USER_SELECT_EXE (
         if "%~1"=="" (
             pause
         )
-        goto :cleanup
+        goto :exe_select_loop_in_dir
     )
     
     for /f "delims=" %%A in ("!EXE_SELECTION!") do (
@@ -309,6 +315,12 @@ echo Found executable: !EXE_PATH!
 echo Executing...
 "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
 set "EXE_EXITCODE=!ERRORLEVEL!"
+
+if defined USER_SELECT_EXE (
+    echo.
+    echo Process completed with exit code !EXE_EXITCODE!.
+    goto :exe_select_loop_in_dir
+)
 
 
 
