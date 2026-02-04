@@ -88,6 +88,7 @@ if errorlevel 1 (
 echo Looking for ISO file...
 set "ISO_FILE="
 for /r "!WORK_ROOT!" %%I in (*.iso) do (
+    echo Found ISO: %%I
     set "ISO_FILE=%%I"
     goto :found_iso
 )
@@ -95,6 +96,8 @@ for /r "!WORK_ROOT!" %%I in (*.iso) do (
 :found_iso
 if not defined ISO_FILE (
     echo Error: No ISO file found in extracted contents
+    echo Contents of working directory:
+    dir /s "!WORK_ROOT!"
     rmdir /s /q "!WORK_ROOT!"
     exit /b 1
 )
