@@ -36,6 +36,7 @@ for %%F in (*.rar) do (
 
 if !RAR_COUNT! equ 0 (
     echo Error: No RAR files found in current directory.
+    pause
     exit /b 1
 )
 
@@ -59,6 +60,7 @@ if not defined RAR_SELECTION (
 if !RAR_SELECTION! equ 0 (
     echo Exiting...
     echo [%time%] User exited >> "!DEBUG_LOG!"
+    pause
     exit /b 0
 )
 
@@ -106,6 +108,7 @@ set "WORK_ROOT=%TEMP%\rar_extract_%RANDOM%_%RANDOM%"
 mkdir "!WORK_ROOT!"
 if errorlevel 1 (
     echo Error: Failed to create working directory
+    pause
     exit /b 1
 )
 
@@ -118,6 +121,7 @@ if exist "C:\Program Files (x86)\7-Zip\7z.exe" set "SEVEN_ZIP=C:\Program Files (
 if not defined SEVEN_ZIP (
     echo Error: 7-Zip not found. Please install 7-Zip or add 7z.exe to PATH.
     rmdir /s /q "!WORK_ROOT!"
+    pause
     exit /b 1
 )
 
@@ -125,6 +129,7 @@ if not defined SEVEN_ZIP (
 if errorlevel 1 (
     echo Error: Failed to extract RAR file
     rmdir /s /q "!WORK_ROOT!"
+    pause
     exit /b 1
 )
 
@@ -157,6 +162,7 @@ for /f "delims=" %%A in ('powershell.exe -NoProfile -Command "try { $img = Mount
 if not defined MOUNT_DRIVE (
     echo Error: Failed to mount ISO
     rmdir /s /q "!WORK_ROOT!"
+    pause
     exit /b 1
 )
 
@@ -248,6 +254,7 @@ if defined EXE_EXITCODE (
         cd /d "!ORIGINAL_DIR!"
         goto :rar_selection_loop
     ) else (
+        pause
         exit /b !EXE_EXITCODE!
     )
 ) else (
@@ -258,6 +265,7 @@ if defined EXE_EXITCODE (
         cd /d "!ORIGINAL_DIR!"
         goto :rar_selection_loop
     ) else (
+        pause
         exit /b 1
     )
 )
