@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Clear and initialize debug log
+set "DEBUG_LOG=%CD%\debug.log"
+del /f /q "!DEBUG_LOG!" 2>nul
+echo [%date% %time%] Script started >> "!DEBUG_LOG!"
+
 :: Save the original directory
 set "ORIGINAL_DIR=%CD%"
 
@@ -21,10 +26,12 @@ set "SELECTED_RAR="
 for /f "tokens=1* delims==" %%A in ('set RAR_ 2^>nul') do set "%%A="
 
 echo Searching for RAR files in current directory...
+echo [%time%] Searching for RAR files in: !ORIGINAL_DIR! >> "!DEBUG_LOG!"
 set "RAR_COUNT=0"
 for %%F in (*.rar) do (
     set /a "RAR_COUNT+=1"
     set "RAR_!RAR_COUNT!=%%~fF"
+    echo [%time%] Found RAR #!RAR_COUNT!: %%~fF >> "!DEBUG_LOG!"
 )
 
 if !RAR_COUNT! equ 0 (
@@ -41,30 +48,37 @@ for /l %%I in (1,1,!RAR_COUNT!) do (
 echo.
 
 set /p RAR_SELECTION="Enter number (0 to exit, 1-!RAR_COUNT!): "
+echo [%time%] User selected: !RAR_SELECTION! >> "!DEBUG_LOG!"
 
 if not defined RAR_SELECTION (
     echo Invalid selection.
+    echo [%time%] Invalid selection - RAR_SELECTION undefined >> "!DEBUG_LOG!"
     goto :rar_selection_loop
 )
 
 if !RAR_SELECTION! equ 0 (
     echo Exiting...
+    echo [%time%] User exited >> "!DEBUG_LOG!"
     exit /b 0
 )
 
 if !RAR_SELECTION! lss 1 (
     echo Invalid selection.
+    echo [%time%] Invalid selection - !RAR_SELECTION! less than 1 >> "!DEBUG_LOG!"
     goto :rar_selection_loop
 )
 
 if !RAR_SELECTION! gtr !RAR_COUNT! (
     echo Invalid selection.
+    echo [%time%] Invalid selection - !RAR_SELECTION! greater than !RAR_COUNT! >> "!DEBUG_LOG!"
     goto :rar_selection_loop
 )
 
 for %%X in (!RAR_SELECTION!) do set "RAR_FILE=!RAR_%%X!"
+echo [%time%] Retrieved RAR_FILE: !RAR_FILE! >> "!DEBUG_LOG!"
 if not defined RAR_FILE (
     echo Error: Failed to retrieve RAR file selection.
+    echo [%time%] ERROR: Failed to retrieve RAR_FILE from RAR_!RAR_SELECTION! >> "!DEBUG_LOG!"
     goto :rar_selection_loop
 )
 
@@ -79,6 +93,7 @@ if "%~2"=="" (
 :: Check if RAR file exists
 if not exist "!RAR_FILE!" (
     echo Error: RAR file not found: !RAR_FILE!
+    echo [%time%] ERROR: RAR file not found: !RAR_FILE! >> "!DEBUG_LOG!"
     if "%~1"=="" (
         goto :rar_selection_loop
     ) else (
@@ -246,8 +261,6 @@ if defined EXE_EXITCODE (
         exit /b 1
     )
 )
-
-timeout /t 10 /nobreak
 
 
 endlocal
