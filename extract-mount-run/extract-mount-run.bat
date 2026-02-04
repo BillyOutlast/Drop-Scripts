@@ -35,9 +35,47 @@ for %%F in (*.rar) do (
 )
 
 if !RAR_COUNT! equ 0 (
-    echo Error: No RAR files found in current directory.
-    pause
-    exit /b 1
+    echo No RAR files found in current directory.
+    echo.
+    echo Executables found:
+    set "EXE_COUNT=0"
+    for %%E in (*.exe) do (
+        set /a "EXE_COUNT+=1"
+        set "EXE_!EXE_COUNT!=%%~fE"
+    )
+    if !EXE_COUNT! equ 0 (
+        echo (none)
+        pause
+        exit /b 1
+    )
+    for /l %%I in (1,1,!EXE_COUNT!) do (
+        echo [%%I] !EXE_%%I!
+    )
+    echo.
+    set /p EXE_SELECTION="Enter number (1-!EXE_COUNT!): "
+    if not defined EXE_SELECTION (
+        echo Error: No selection made.
+        pause
+        exit /b 1
+    )
+    if !EXE_SELECTION! lss 1 (
+        echo Error: Invalid selection.
+        pause
+        exit /b 1
+    )
+    if !EXE_SELECTION! gtr !EXE_COUNT! (
+        echo Error: Invalid selection.
+        pause
+        exit /b 1
+    )
+    for /f "delims=" %%A in ("!EXE_SELECTION!") do (
+        set "EXE_PATH=!EXE_%%A!"
+    )
+    echo.
+    echo Found executable: !EXE_PATH!
+    echo Executing...
+    "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
+    exit /b !ERRORLEVEL!
 )
 
 echo.
