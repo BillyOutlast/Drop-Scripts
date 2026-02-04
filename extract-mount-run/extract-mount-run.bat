@@ -199,4 +199,7 @@ if defined EXE_EXITCODE (
     exit /b 1
 )
 
+timeout /t 10 /nobreak
+
+
 endlocal
