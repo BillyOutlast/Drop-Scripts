@@ -187,7 +187,6 @@ echo Executing...
 set "EXE_EXITCODE=!ERRORLEVEL!"
 
 :cleanup
-exit
 echo Unmounting ISO...
 powershell.exe -NoProfile -Command "Dismount-DiskImage -ImagePath '!ISO_FILE!'" >nul 2>&1
 
