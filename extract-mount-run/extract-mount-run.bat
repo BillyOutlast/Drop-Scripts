@@ -150,26 +150,25 @@ if not defined ISO_FILE (
     echo No ISO file found in extracted contents
     echo Searching for executables in working directory...
     set "SEARCH_DIR=!WORK_ROOT!"
-    goto :find_exe_in_dir
+) else (
+    echo Found ISO: !ISO_FILE!
+    
+    echo Found ISO: !ISO_FILE!
+    
+    :: Mount ISO using PowerShell
+    echo Mounting ISO...
+    for /f "delims=" %%A in ('powershell.exe -NoProfile -Command "try { $img = Mount-DiskImage -ImagePath '!ISO_FILE!' -PassThru; ($img ^| Get-Volume).DriveLetter + ':' } catch { exit 1 }"') do set "MOUNT_DRIVE=%%A"
+    
+    if not defined MOUNT_DRIVE (
+        echo Error: Failed to mount ISO
+        rmdir /s /q "!WORK_ROOT!"
+        pause
+        exit /b 1
+    )
+    
+    echo ISO mounted to: !MOUNT_DRIVE!
+    set "SEARCH_DIR=!MOUNT_DRIVE!\"
 )
-
-echo Found ISO: !ISO_FILE!
-
-echo Found ISO: !ISO_FILE!
-
-:: Mount ISO using PowerShell
-echo Mounting ISO...
-for /f "delims=" %%A in ('powershell.exe -NoProfile -Command "try { $img = Mount-DiskImage -ImagePath '!ISO_FILE!' -PassThru; ($img ^| Get-Volume).DriveLetter + ':' } catch { exit 1 }"') do set "MOUNT_DRIVE=%%A"
-
-if not defined MOUNT_DRIVE (
-    echo Error: Failed to mount ISO
-    rmdir /s /q "!WORK_ROOT!"
-    pause
-    exit /b 1
-)
-
-echo ISO mounted to: !MOUNT_DRIVE!
-set "SEARCH_DIR=!MOUNT_DRIVE!\"
 
 :find_exe_in_dir
 :: If user needs to select EXE, show menu
