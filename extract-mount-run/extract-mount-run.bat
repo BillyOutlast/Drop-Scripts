@@ -1,8 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Save the original directory
+set "ORIGINAL_DIR=%CD%"
+
 if "%~1"=="" (
     :rar_selection_loop
+    cd /d "!ORIGINAL_DIR!"
     echo Searching for RAR files in current directory...
     set "RAR_COUNT=0"
     for %%F in (*.rar) do (
@@ -208,6 +212,7 @@ if defined EXE_EXITCODE (
         echo.
         echo Process completed. Returning to menu...
         echo.
+        cd /d "!ORIGINAL_DIR!"
         goto :rar_selection_loop
     ) else (
         exit /b !EXE_EXITCODE!
@@ -217,6 +222,7 @@ if defined EXE_EXITCODE (
         echo.
         echo Process completed with errors. Returning to menu...
         echo.
+        cd /d "!ORIGINAL_DIR!"
         goto :rar_selection_loop
     ) else (
         exit /b 1
