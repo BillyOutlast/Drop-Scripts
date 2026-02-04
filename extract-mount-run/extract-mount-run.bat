@@ -250,7 +250,7 @@ if defined USER_SELECT_EXE (
 
 echo Found executable: !EXE_PATH!
 echo Executing...
-"!EXE_PATH!"
+"!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
 set "EXE_EXITCODE=!ERRORLEVEL!"
 
 :cleanup
