@@ -43,7 +43,7 @@ For games distributed as multi-part RAR archives with ISO files, create an addit
    | Setting | Value |
    |---------|-------|
    | **Setup Configuration** | Windows: `exr-setup.bat` |
-   | **Launch Configuration** | Setup-only mode (no launch config) |
+   | **Launch Configuration** | Windows: `drop-start.bat` |
 
 3. This version uses the enhanced launcher optimized for multi-part archives
 
