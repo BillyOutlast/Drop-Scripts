@@ -39,10 +39,12 @@ if !RAR_COUNT! equ 0 (
     echo.
     echo Executables found:
     set "EXE_COUNT=0"
-    for %%E in (*.exe) do (
+    pushd "!ORIGINAL_DIR!"
+    for /f "delims=" %%E in ('dir /b /a:-d "*.exe" 2^>nul') do (
         set /a "EXE_COUNT+=1"
-        set "EXE_!EXE_COUNT!=%%~fE"
+        set "EXE_!EXE_COUNT!=!ORIGINAL_DIR!\%%E"
     )
+    popd
     if !EXE_COUNT! equ 0 (
         echo (none)
         pause
