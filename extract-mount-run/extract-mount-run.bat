@@ -90,10 +90,8 @@ set "ISO_FILE="
 for /r "!WORK_ROOT!" %%I in (*.iso) do (
     echo Found ISO: %%I
     set "ISO_FILE=%%I"
-    goto :found_iso
 )
 
-:found_iso
 if not defined ISO_FILE (
     echo Error: No ISO file found in extracted contents
     echo Contents of working directory:
@@ -101,6 +99,8 @@ if not defined ISO_FILE (
     rmdir /s /q "!WORK_ROOT!"
     exit /b 1
 )
+
+:found_iso
 
 echo Found ISO: !ISO_FILE!
 
