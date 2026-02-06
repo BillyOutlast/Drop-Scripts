@@ -114,6 +114,7 @@ for /f "delims=" %%A in ("!EXE_SELECTION!") do (
 echo.
 echo Found executable: !EXE_PATH!
 echo Executing...
+echo Please set install directory in the application to: !ORIGINAL_DIR!
 "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
 set "EXE_EXITCODE=!ERRORLEVEL!"
 echo.
@@ -337,6 +338,7 @@ if defined USER_SELECT_EXE (
 
 echo Found executable: !EXE_PATH!
 echo Executing...
+echo Please set install directory in the application to: !ORIGINAL_DIR!
 "!EXE_PATH!" /DIR="!ORIGINAL_DIR!"
 set "EXE_EXITCODE=!ERRORLEVEL!"
 
