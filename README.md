@@ -14,9 +14,10 @@ Extracts RAR files, mounts ISO images, and runs executables.
 
 
 ![Screenshot of the Drop=Scripts](./imgs/DropApp.png)
+![Screenshot of the Script Added](./imgs/VerionConfig.png)
+![How to Configure Games](./imgs/GameConfig.png)
 
-![Screenshot of the Drop=Scripts](./imgs/DropApp.png)
-![Screenshot of the Drop=Scripts](./imgs/Verion Config.png)
+
 
 
 ## Latest Updates
