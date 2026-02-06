@@ -5,12 +5,19 @@ A collection of utility scripts for Drop instances, specializing in handling mul
 ## Scripts
 
 ### extract-mount-run
-Extracts RAR files, mounts ISO images, and runs executables from the mounted ISO.
+Extracts RAR files, mounts ISO images, and runs executables.
 
 **Files:**
 - `extract-mount-run.bat` - Main extraction and execution script
 - `exr-setup.bat` - Game setup launcher for multi-part archives
 - `install-user.bat` - User installation/setup script
+
+
+![Screenshot of the Drop=Scripts](./imgs/DropApp.png)
+
+![Screenshot of the Drop=Scripts](./imgs/DropApp.png)
+![Screenshot of the Drop=Scripts](./imgs/Verion Config.png)
+
 
 ## Latest Updates
 
